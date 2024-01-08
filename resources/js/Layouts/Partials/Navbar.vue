@@ -3,16 +3,15 @@ import { ref } from "vue";
 import { Link, usePage } from "@inertiajs/vue3";
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
+import Message from "@/Icons/Message.vue";
+import Notification from "@/Icons/Notification.vue";
 
-const { auth } = usePage().props;
+const { user } = usePage().props.auth;
 const mobileNav = ref(false);
 </script>
 
 <template>
-    <nav
-        x-data="{ mobileMenuOpen: false, userMenuOpen: false }"
-        class="bg-white shadow"
-    >
+    <nav class="bg-white shadow">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 justify-between">
                 <div class="flex">
@@ -55,44 +54,14 @@ const mobileNav = ref(false);
                         type="button"
                         class="rounded-full bg-white p-2 text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                     >
-                        <span class="sr-only">View notifications</span>
-                        <!-- Heroicon name: outline/bell -->
-                        <svg
-                            class="h-6 w-6"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            aria-hidden="true"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
-                            />
-                        </svg>
+                        <Message class="w-6 h-6" />
                     </button>
 
                     <button
                         type="button"
                         class="rounded-full bg-white p-2 text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                     >
-                        <span class="sr-only">Messages</span>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="w-6 h-6"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
-                            />
-                        </svg>
+                        <Notification class="w-6 h-6" />
                     </button>
 
                     <Dropdown align="right" width="48">
@@ -110,16 +79,18 @@ const mobileNav = ref(false);
                         </template>
 
                         <template #content>
-                            <DropdownLink :href="`/profile/${auth.user.id}`">
+                            <DropdownLink
+                                :href="route('profile', { user: user.id })"
+                            >
                                 Your Profile
                             </DropdownLink>
                             <DropdownLink :href="route('profile.edit')">
                                 Edit Profile
                             </DropdownLink>
                             <DropdownLink
-                                :href="route('logout')"
-                                method="post"
                                 as="button"
+                                method="post"
+                                :href="route('logout')"
                             >
                                 Log Out
                             </DropdownLink>
@@ -208,12 +179,10 @@ const mobileNav = ref(false);
                     </div>
                     <div class="ml-3">
                         <div class="text-base font-medium text-gray-800">
-                            {{
-                                `${auth.user.first_name} ${auth.user.last_name}`
-                            }}
+                            {{ `${user.first_name} ${user.last_name}` }}
                         </div>
                         <div class="text-sm font-medium text-gray-500">
-                            {{ auth.user.email }}
+                            {{ user.email }}
                         </div>
                     </div>
                 </div>

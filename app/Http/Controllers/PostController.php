@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostResource;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class PostController extends Controller
 {
@@ -13,7 +17,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        abort(404);
     }
 
     /**
@@ -21,7 +25,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Post/Create');
     }
 
     /**
@@ -29,7 +33,16 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-        //
+        $post = Post::create([
+            'user_id' => auth()->user()->id,
+            'description' => $request->description,
+        ]);
+
+        if ($request->image) {
+            $post->addMedia($request->image)->toMediaCollection();
+        }
+
+        return Redirect::to('/');
     }
 
     /**
@@ -37,7 +50,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        return Inertia::render('Post/Show', ['post' => new PostResource($post)]);
     }
 
     /**
@@ -45,7 +58,11 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        $post->with(['user', 'comments' => function ($query) {
+            $query->with('user')->orderBy('created_at', 'desc');
+        }])->first();
+
+        return Inertia::render('Post/Update', ['post' => new PostResource($post)]);
     }
 
     /**
@@ -53,7 +70,19 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        dd($request->all());
+        $post->update([
+            'description' => $request->description,
+        ]);
+
+        if ($request->image) {
+            if ($post->hasMedia()) {
+                $post->getMedia()->first()->delete();
+            }
+            $post->addMedia($request->image)->toMediaCollection();
+        }
+
+        return Redirect::to('/');
     }
 
     /**
@@ -61,6 +90,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+
+        return redirect()->to('/');
     }
 }
